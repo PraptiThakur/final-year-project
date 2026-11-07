@@ -1,621 +1,828 @@
 
-import { useMemo, useRef, useState } from 'react'
+import { useState, useRef } from 'react'
+
 import {
   Activity,
-  AlertCircle,
+  AlertTriangle,
   Anchor,
-  ArrowDownRight,
-  ArrowUpRight,
+  BarChart3,
   Bell,
-  CalendarDays,
-  CheckCircle2,
   ChevronDown,
-  ChevronRight,
-  CircleHelp,
+  ChevronUp,
   Clock3,
-  Download,
   FileText,
-  Filter,
-  Layers,
-  MapPin,
-  Maximize2,
+  LayoutDashboard,
+  LogOut,
   Menu,
-  MoreHorizontal,
   Radio,
-  Search,
-  Settings2,
-  ShieldAlert,
+  Satellite,
+  Settings,
+  ShieldCheck,
   Ship,
-  SlidersHorizontal,
-  Upload,
   Waves,
-  X,
-  ZoomIn,
-  ZoomOut,
+  X
 } from 'lucide-react'
+
 import './Dashboard.css'
 
-const navigation = [
-  { label: 'Overview', icon: Activity },
-  { label: 'Incidents', icon: ShieldAlert },
-  { label: 'Vessel Traffic', icon: Ship },
-  { label: 'Analytics', icon: Waves },
-  { label: 'Reports', icon: FileText },
+// SIDEBAR NAVIGATION
+const navItems = [
+  ['Overview', LayoutDashboard],
+  ['Live Monitoring', Radio],
+  ['Oil Spill Detection', AlertTriangle],
+  ['Vessel Tracking', Ship],
+  ['Incident Reports', FileText],
+  ['Satellite Imagery', Satellite],
+  ['Analytics', BarChart3],
+  ['Settings', Settings]
 ]
 
+// DASHBOARD METRICS
 const metrics = [
   {
-    label: 'Active Incidents',
-    value: '—',
-    note: 'Awaiting model integration',
-    icon: AlertCircle,
+    label: 'Potential Spill Detections',
+    icon: AlertTriangle,
     tone: 'orange',
+    note: 'Awaiting model results'
   },
   {
-    label: 'Estimated Affected Area',
-    value: '—',
-    unit: 'km²',
-    note: 'Requires georeferenced results',
-    icon: Waves,
-    tone: 'blue',
-  },
-  {
-    label: 'Vessels Detected',
-    value: '—',
-    note: 'YOLOv8 not connected',
+    label: 'Vessels Tracked',
     icon: Ship,
-    tone: 'teal',
+    tone: 'blue',
+    note: 'Awaiting vessel data'
   },
   {
-    label: 'High Risk Zones',
-    value: '—',
-    note: 'Awaiting analysis',
-    icon: ShieldAlert,
-    tone: 'red',
+    label: 'Satellite Images Analysed',
+    icon: Satellite,
+    tone: 'teal',
+    note: 'Awaiting processing records'
   },
+  {
+    label: 'Detection Accuracy',
+    icon: ShieldCheck,
+    tone: 'purple',
+    note: 'Available after model evaluation'
+  }
 ]
 
+// SIDEBAR
+function Sidebar({ active, onSelect, onLogout }) {
+  return (
+    <aside className="sidebar">
+
+      <div className="sidebar-brand">
+
+        <div className="sidebar-logo">
+          <img
+            src="/images/coastal-logo.png"
+            alt="Coastal Spill Monitoring logo"
+          />
+        </div>
+
+        <strong>Coastal Spill</strong>
+        <strong>Monitoring</strong>
+
+        <span>MARINE ENVIRONMENTAL SURVEILLANCE</span>
+
+      </div>
+
+      <div className="sidebar-label">
+        WORKSPACE
+      </div>
+
+      <nav className="sidebar-nav">
+
+        {navItems.map(([label, Icon]) => (
+          <button
+            key={label}
+            className={`sidebar-link ${
+              active === label ? 'active' : ''
+            }`}
+            onClick={() => onSelect(label)}
+          >
+            <Icon size={19} />
+            <span>{label}</span>
+          </button>
+        ))}
+
+      </nav>
+
+      <div className="sidebar-bottom">
+
+        <div className="sidebar-footer">
+          <span className="workspace-dot" />
+          Monitoring Workspace
+        </div>
+
+        <button
+          className="logout-button"
+          onClick={onLogout}
+        >
+          <LogOut size={17} />
+          Sign out
+        </button>
+
+      </div>
+
+    </aside>
+  )
+}
+
+// TOP NAVIGATION
+function Topbar({ onMenu, onLogout }) {
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+
+  return (
+    <header className="topbar">
+
+      <button
+        className="mobile-menu"
+        onClick={onMenu}
+        aria-label="Open navigation"
+      >
+        <Menu size={21} />
+      </button>
+
+      <div className="topbar-status">
+
+        <span className="workspace-dot" />
+
+        <strong>Monitoring Workspace</strong>
+
+        <span className="topbar-separator" />
+
+        <span>
+          Satellite and data integrations pending
+        </span>
+
+      </div>
+
+      <div className="topbar-right">
+
+        <div className="notification-wrap">
+
+          <button
+            className="header-icon"
+            onClick={() =>
+              setNotificationsOpen(!notificationsOpen)
+            }
+            aria-label="Notifications"
+          >
+            <Bell size={19} />
+          </button>
+
+          {notificationsOpen && (
+            <div className="notification-popover">
+
+              <strong>Notifications</strong>
+
+              <p>No notifications available yet.</p>
+
+              <span>
+                Monitoring alerts will appear when connected.
+              </span>
+
+            </div>
+          )}
+
+        </div>
+
+        <div className="officer-profile">
+
+          <div className="officer-avatar">
+            CO
+          </div>
+
+          <div>
+            <strong>Coastal Officer</strong>
+            <span>Monitoring Workspace</span>
+          </div>
+
+          <ChevronDown size={15} />
+
+        </div>
+
+        <button
+          className="topbar-logout"
+          onClick={onLogout}
+          title="Sign out"
+        >
+          <LogOut size={17} />
+        </button>
+
+      </div>
+
+    </header>
+  )
+}
+
+// METRIC CARD
 function MetricCard({ item }) {
   const Icon = item.icon
 
   return (
-    <article className="metric-card">
-      <div className="metric-top">
-        <div className={`metric-icon ${item.tone}`}>
-          <Icon size={17} />
-        </div>
-        <span className="metric-label">{item.label}</span>
-        <button className="icon-button small" aria-label={`More about ${item.label}`}>
-          <MoreHorizontal size={18} />
-        </button>
+    <article className="metric-card glass-card">
+
+      <div className={`metric-icon ${item.tone}`}>
+        <Icon size={25} />
       </div>
 
-      <div className="metric-value">
-        {item.value}
-        {item.unit && <span className="metric-unit">{item.unit}</span>}
+      <div className="metric-copy">
+
+        <span className="metric-label">
+          {item.label}
+        </span>
+
+        <strong className="metric-value">
+          —
+        </strong>
+
+        <span className="metric-note">
+          {item.note}
+        </span>
+
       </div>
 
-      <div className="metric-note">
-        <span className="note-dot" />
-        {item.note}
-      </div>
     </article>
   )
 }
 
-function SectionHeading({ eyebrow, title, action }) {
+// PANEL HEADING
+function PanelHeading({ icon: Icon, title, action }) {
   return (
-    <div className="section-heading">
-      <div>
-        <div className="eyebrow">{eyebrow}</div>
+    <div className="panel-heading">
+
+      <div className="panel-heading-title">
+
+        {Icon && <Icon size={21} />}
+
         <h2>{title}</h2>
+
       </div>
-      {action}
+
+      {action && (
+        <button className="panel-action">
+          {action}
+        </button>
+      )}
+
     </div>
   )
 }
 
-function SatelliteWorkspace({ image, onUpload }) {
-  const [zoom, setZoom] = useState(1)
-  const [fullscreen, setFullscreen] = useState(false)
-  const [layersOpen, setLayersOpen] = useState(false)
-  const inputRef = useRef(null)
-
+// CENTRAL OCEAN MODEL
+function OceanModel() {
   return (
-    <section className={`panel satellite-panel ${fullscreen ? 'viewer-fullscreen' : ''}`}>
-      <div className="panel-header satellite-header">
-        <SectionHeading
-          eyebrow="SATELLITE ANALYSIS"
-          title="Environmental Risk Map"
-        />
+    <section className="ocean-model glass-panel">
 
-        <div className="map-actions">
-          <button className="map-mode active">Satellite</button>
+      <div className="model-heading">
 
-          <div className="layer-control">
-            <button
-              className={`icon-button ${layersOpen ? 'selected' : ''}`}
-              onClick={() => setLayersOpen(!layersOpen)}
-              title="Layer options"
-            >
-              <Layers size={17} />
-            </button>
+        <div>
 
-            {layersOpen && (
-              <div className="layer-popover">
-                <strong>Map layers</strong>
-                <label><input type="checkbox" defaultChecked /> Satellite image</label>
-                <label><input type="checkbox" disabled /> Spill segmentation (model pending)</label>
-                <label><input type="checkbox" disabled /> Vessel detections (model pending)</label>
-              </div>
-            )}
-          </div>
-
-          <button
-            className="icon-button"
-            onClick={() => setFullscreen(!fullscreen)}
-            title="Toggle full screen"
-          >
-            {fullscreen ? <X size={17} /> : <Maximize2 size={17} />}
-          </button>
-        </div>
-      </div>
-
-      <div className="map-image-area">
-        {image ? (
-          <img
-            src={image}
-            alt="Uploaded satellite image"
-            className="satellite-image"
-            style={{ transform: `scale(${zoom})` }}
+          <PanelHeading
+            icon={Waves}
+            title="Marine Monitoring & Analysis"
           />
-        ) : (
-          <img
-            src="/oceanimage.png"
-            alt="Ocean satellite reference image"
-            className="satellite-image"
-            style={{ transform: `scale(${zoom})` }}
-            onError={(event) => {
-              event.currentTarget.style.display = 'none'
-            }}
-          />
-        )}
 
-        <div className="map-image-label">
-          <MapPin size={14} />
-          {image ? 'Uploaded image preview' : 'Ocean reference imagery'}
+          <p>
+            Satellite-based coastal surveillance and spill detection
+          </p>
+
         </div>
 
-        <div className="map-status">
-          <span className="status-dot" />
-          {image ? 'IMAGE LOADED' : 'REFERENCE IMAGE'}
+        <div className="model-tabs">
+
+          <span className="selected">
+            <Satellite size={16} />
+            Satellite
+          </span>
+
+          <span>
+            <Ship size={16} />
+            Vessels
+          </span>
+
+          <span>
+            <Anchor size={16} />
+            Combined
+          </span>
+
         </div>
 
-        <div className="map-zoom-controls">
-          <button
-            className="zoom-button"
-            onClick={() => setZoom((current) => Math.min(current + 0.2, 2))}
-            title="Zoom in"
-          >
-            <ZoomIn size={17} />
-          </button>
-          <button
-            className="zoom-button"
-            onClick={() => setZoom((current) => Math.max(current - 0.2, 1))}
-            title="Zoom out"
-          >
-            <ZoomOut size={17} />
-          </button>
-        </div>
-
-        <div className="map-empty-message">
-          <div className="empty-message-icon"><Waves size={20} /></div>
-          <strong>No analysis results yet</strong>
-          <span>Upload a satellite image to begin analysis.</span>
-          <button onClick={() => inputRef.current?.click()}>
-            <Upload size={14} /> Upload image
-          </button>
-        </div>
       </div>
 
-      <div className="map-footer">
-        <div className="map-footer-left">
-          <span><Clock3 size={13} /> Waiting for image analysis</span>
-          <span><Radio size={13} /> Model connection pending</span>
-        </div>
-        <span className="map-scale">Image scale unavailable</span>
-      </div>
+      <div className="ocean-model-view">
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(event) => onUpload(event.target.files?.[0])}
-      />
-    </section>
-  )
-}
-
-function IncidentPanel() {
-  return (
-    <section className="panel incidents-panel">
-      <SectionHeading
-        eyebrow="REVIEW QUEUE"
-        title="Incident Records"
-        action={
-          <span className="muted-action">No records yet</span>
-        }
-      />
-
-      <div className="incident-empty">
-        <div className="empty-circle"><ShieldAlert size={21} /></div>
-        <strong>No detected incidents</strong>
-        <p>Incident records will appear here after an image has been processed by the oil-spill model.</p>
-      </div>
-    </section>
-  )
-}
-
-function VesselPanel() {
-  return (
-    <section className="panel vessel-panel">
-      <div className="panel-header">
-        <SectionHeading
-          eyebrow="VESSEL DETECTION"
-          title="Vessel Image Preview"
-        />
-        <button className="icon-button" title="More options">
-          <MoreHorizontal size={18} />
-        </button>
-      </div>
-
-      <div className="vessel-image-wrap">
         <img
-          src="/images/ship-satellite.jpg"
-          alt="Reference satellite image of a ship"
+          src="/images/satellite-ocean.png"
+          alt="Satellite ocean monitoring area"
           onError={(event) => {
             event.currentTarget.style.display = 'none'
-            event.currentTarget.parentElement.classList.add('image-unavailable')
           }}
         />
-        <div className="vessel-image-fallback">
-          <Ship size={32} />
-          <span>Add ship-satellite.jpg to public/images</span>
-        </div>
-        <div className="reference-image-tag">REFERENCE IMAGE</div>
-      </div>
 
-      <div className="vessel-details">
-        <div>
-          <span>Detection model</span>
-          <strong>YOLOv8</strong>
-        </div>
-        <div>
-          <span>Integration status</span>
-          <strong className="pending-text">Pending</strong>
-        </div>
-        <div>
-          <span>Confidence score</span>
-          <strong>Not available</strong>
-        </div>
-        <div>
-          <span>Vessel coordinates</span>
-          <strong>Not available</strong>
-        </div>
-      </div>
+        <div className="model-view-shade" />
 
-      <div className="vessel-bottom-note">
-        <CircleHelp size={14} />
-        Vessel detection results will appear after model integration.
-      </div>
-    </section>
-  )
-}
+        <div className="model-map-label">
 
-function SpillChart() {
-  return (
-    <section className="panel chart-panel">
-      <SectionHeading
-        eyebrow="SPILL MONITORING"
-        title="Spill Area Evolution"
-        action={<span className="small-select">Awaiting data <ChevronDown size={13} /></span>}
-      />
+          <span className="live-dot" />
 
-      <div className="chart-empty">
-        <div className="chart-placeholder">
-          <div className="chart-grid-line" />
-          <div className="chart-grid-line" />
-          <div className="chart-grid-line" />
-          <div className="chart-center-icon"><Activity size={23} /></div>
+          MARINE MODEL DISPLAY AREA
+
         </div>
-        <span>Historical spill measurements will appear after analysis.</span>
-      </div>
-    </section>
-  )
-}
 
-function ModelConfidence() {
-  return (
-    <section className="panel confidence-panel">
-      <SectionHeading
-        eyebrow="MODEL PERFORMANCE"
-        title="Model Status"
-      />
+        <div className="model-placeholder">
 
-      <div className="model-row">
-        <div className="model-row-top">
-          <div>
-            <strong>SegFormer</strong>
-            <span>Oil spill segmentation</span>
+          <div className="model-placeholder-icon">
+            <Waves size={34} />
           </div>
-          <span className="status-pill pending">Not connected</span>
+
+          <h3>Ocean Model Showcase</h3>
+
+          <p>
+            Your 3D ocean model, satellite imagery,
+            oil spill detection overlays and vessel
+            positions will appear here.
+          </p>
+
+          <span>
+            MODEL INTEGRATION PENDING
+          </span>
+
         </div>
-        <div className="progress-track">
-          <div className="progress-fill unavailable" />
+
+        <div className="model-map-controls">
+
+          <button aria-label="Zoom in">+</button>
+          <button aria-label="Zoom out">−</button>
+          <button aria-label="Reset map">◎</button>
+
         </div>
+
+        <div className="model-map-bottom">
+          Geographic monitoring area · Awaiting imagery
+        </div>
+
       </div>
 
-      <div className="model-row">
-        <div className="model-row-top">
-          <div>
-            <strong>YOLOv8</strong>
-            <span>Vessel detection</span>
-          </div>
-          <span className="status-pill pending">Not connected</span>
-        </div>
-        <div className="progress-track">
-          <div className="progress-fill unavailable" />
-        </div>
+      <div className="model-footer">
+
+        <span>
+          <Radio size={15} />
+          Satellite integration pending
+        </span>
+
+        <span>
+          <Clock3 size={15} />
+          No acquisition timestamp available
+        </span>
+
       </div>
 
-      <div className="model-footnote">
-        <CircleHelp size={13} />
-        Accuracy metrics will be displayed after model evaluation.
-      </div>
     </section>
   )
 }
 
-function RiskPanel() {
+// LATEST ALERT
+function AlertPanel() {
   return (
-    <section className="panel risk-panel">
-      <SectionHeading
-        eyebrow="ENVIRONMENTAL ASSESSMENT"
-        title="Coastal Threat Index"
+    <section className="glass-panel information-panel">
+
+      <PanelHeading
+        icon={AlertTriangle}
+        title="Latest Alert"
+        action="View all"
       />
 
-      <div className="risk-empty">
-        <div className="risk-circle">
-          <ShieldAlert size={25} />
+      <div className="information-empty">
+
+        <div className="empty-icon alert-icon">
+          <AlertTriangle size={27} />
         </div>
-        <div>
-          <strong>Awaiting assessment</strong>
-          <p>A threat score requires verified detection and geographic data.</p>
-        </div>
+
+        <strong>No alerts generated</strong>
+
+        <p>
+          Potential spill alerts will appear after
+          satellite imagery has been processed.
+        </p>
+
       </div>
 
-      <div className="risk-footer">
-        <span><CheckCircle2 size={13} /> No assessment generated</span>
+      <div className="panel-footnote">
+        Detection model integration pending
       </div>
+
     </section>
   )
 }
 
-export default function Dashboard() {
-  const [activeNav, setActiveNav] = useState('Overview')
-  const [image, setImage] = useState(null)
-  const [imageName, setImageName] = useState('')
-  const [mobileMenu, setMobileMenu] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [notificationOpen, setNotificationOpen] = useState(false)
-  const uploadRef = useRef(null)
+// NEARBY VESSELS
+function VesselPanel() {
+  return (
+    <section className="glass-panel information-panel">
 
-  const pageTitle = useMemo(() => {
-    const titles = {
-      Overview: 'Environmental Risk Overview',
-      Incidents: 'Incident Records',
-      'Vessel Traffic': 'Vessel Traffic',
-      Analytics: 'Environmental Analytics',
-      Reports: 'Analysis Reports',
-    }
-    return titles[activeNav] || 'Environmental Risk Overview'
-  }, [activeNav])
+      <PanelHeading
+        icon={Ship}
+        title="Nearby Vessels"
+        action="View all"
+      />
 
-  function handleUpload(file) {
-    if (!file) return
+      <div className="information-empty">
 
-    if (!file.type.startsWith('image/')) {
-      window.alert('Please select a valid image file.')
-      return
-    }
+        <div className="empty-icon vessel-icon">
+          <Ship size={27} />
+        </div>
 
-    if (image) URL.revokeObjectURL(image)
+        <strong>Vessel data unavailable</strong>
 
-    const previewUrl = URL.createObjectURL(file)
-    setImage(previewUrl)
-    setImageName(file.name)
+        <p>
+          Vessel identification, positions and proximity
+          details will appear after data integration.
+        </p>
+
+      </div>
+
+      <div className="panel-footnote">
+        Vessel data integration pending
+      </div>
+
+    </section>
+  )
+}
+
+// DETECTION ANALYTICS
+function AnalyticsPanel() {
+  return (
+    <section className="glass-panel lower-panel">
+
+      <PanelHeading
+        icon={BarChart3}
+        title="Detection Analytics"
+        action="View analytics"
+      />
+
+      <div className="analytics-placeholder">
+
+        <div className="analytics-grid-lines">
+          <i />
+          <i />
+          <i />
+          <i />
+        </div>
+
+        <Activity size={40} />
+
+      </div>
+
+      <p>
+        Historical detection trends will appear after
+        model results become available.
+      </p>
+
+    </section>
+  )
+}
+
+// RECENT ACTIVITY
+function ActivityPanel() {
+  return (
+    <section className="glass-panel lower-panel">
+
+      <PanelHeading
+        icon={Clock3}
+        title="Recent Activity"
+        action="View all"
+      />
+
+      <div className="activity-empty">
+
+        <Activity size={32} />
+
+        <strong>No recent activity</strong>
+
+        <p>
+          Satellite processing, detections and vessel
+          updates will be listed here.
+        </p>
+
+      </div>
+
+    </section>
+  )
+}
+
+// CLEANER OCEANS IMAGE
+function ConservationPanel() {
+  return (
+    <section className="conservation-panel glass-panel">
+
+      <img
+        src="/images/ocean-life.png"
+        alt="Marine wildlife in the ocean"
+        onError={(event) => {
+          event.currentTarget.style.display = 'none'
+        }}
+      />
+
+      <div className="conservation-shade" />
+
+      <div className="conservation-copy">
+
+        <span>MARINE CONSERVATION</span>
+
+        <h2>
+          Together for
+          <br />
+          Cleaner Oceans
+        </h2>
+
+        <p>
+          Monitoring today for
+          <br />
+          a healthier tomorrow.
+        </p>
+
+      </div>
+
+    </section>
+  )
+}
+
+// MAIN DASHBOARD
+export default function Dashboard({ onLogout }) {
+
+  const [active, setActive] = useState('Overview')
+  const [dashboardOpen, setDashboardOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const touchStartY = useRef(null)
+  const lastWheelTime = useRef(0)
+
+  function openDashboard() {
+    setDashboardOpen(true)
   }
 
-  function handleExport() {
-    window.alert('Report export will be available after analysis and report generation are integrated.')
+  function closeDashboard() {
+    setDashboardOpen(false)
+  }
+
+  // SWIPE UP AND DOWN
+  function handleTouchStart(event) {
+    touchStartY.current = event.touches[0].clientY
+  }
+
+  function handleTouchEnd(event) {
+    if (touchStartY.current === null) return
+
+    const endY = event.changedTouches[0].clientY
+
+    const difference = touchStartY.current - endY
+
+    if (difference > 55) {
+      openDashboard()
+    }
+
+    else if (difference < -55) {
+
+      const main = document.querySelector('.dashboard-main')
+
+      if (!main || main.scrollTop <= 0) {
+        closeDashboard()
+      }
+
+    }
+
+    touchStartY.current = null
+  }
+
+  // DESKTOP MOUSE WHEEL
+  function handleWheel(event) {
+
+    const now = Date.now()
+
+    if (now - lastWheelTime.current < 700) return
+
+    if (event.deltaY > 35 && !dashboardOpen) {
+      openDashboard()
+      lastWheelTime.current = now
+    }
+
+    if (event.deltaY < -35 && dashboardOpen) {
+
+      const main = document.querySelector('.dashboard-main')
+
+      if (!main || main.scrollTop <= 0) {
+        closeDashboard()
+        lastWheelTime.current = now
+      }
+
+    }
   }
 
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <div className="brand">
-          <div className="brand-symbol">
-            <Waves size={23} />
-          </div>
-          <div className="brand-copy">
-            <strong>MARINEGUARD</strong>
-            <span>COASTAL INTELLIGENCE</span>
-          </div>
-        </div>
+    <div
+      className={`coastal-experience ${
+        dashboardOpen ? 'dashboard-is-open' : ''
+      }`}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onWheel={handleWheel}
+    >
 
-        <button
-          className="mobile-menu-button"
-          onClick={() => setMobileMenu(!mobileMenu)}
-          aria-label="Toggle navigation"
-        >
-          {mobileMenu ? <X size={21} /> : <Menu size={21} />}
-        </button>
+      {/* FULL-SCREEN SATELLITE OCEAN IMAGE */}
 
-        <nav className={`main-navigation ${mobileMenu ? 'mobile-open' : ''}`}>
-          {navigation.map(({ label, icon: Icon }) => (
-            <button
-              key={label}
-              className={`nav-link ${activeNav === label ? 'active' : ''}`}
-              onClick={() => {
-                setActiveNav(label)
-                setMobileMenu(false)
-              }}
-            >
-              <Icon size={15} className="mobile-nav-icon" />
-              {label}
-            </button>
-          ))}
-        </nav>
+      <div className="ocean-background" />
 
-        <div className="topbar-tools">
-          <button
-            className={`icon-button top-tool ${searchOpen ? 'selected' : ''}`}
-            onClick={() => setSearchOpen(!searchOpen)}
-            title="Search"
-          >
-            <Search size={18} />
-          </button>
-          <button
-            className={`icon-button top-tool notification-button ${notificationOpen ? 'selected' : ''}`}
-            onClick={() => setNotificationOpen(!notificationOpen)}
-            title="Notifications"
-          >
-            <Bell size={18} />
-          </button>
+      <div className="ocean-background-overlay" />
 
-          <div className="profile">
-            <div className="profile-avatar">MG</div>
-            <div className="profile-copy">
-              <strong>MarineGuard</strong>
-              <span>Research Workspace</span>
+      {/* INITIAL OCEAN SCREEN */}
+
+      {!dashboardOpen && (
+        <div className="ocean-intro">
+
+          {/* Minimal swipe-up instruction */}
+
+          <div className="ocean-swipe-hint">
+
+            <div className="swipe-arrow">
+              <ChevronUp size={23} />
             </div>
-            <ChevronDown size={15} />
-          </div>
-        </div>
-      </header>
 
-      {searchOpen && (
-        <div className="top-popover search-popover">
-          <Search size={16} />
-          <input autoFocus placeholder="Search dashboard..." />
-          <button onClick={() => setSearchOpen(false)}><X size={16} /></button>
+            <span>SWIPE UP</span>
+
+            <small>
+              To explore the monitoring dashboard
+            </small>
+
+          </div>
+
         </div>
       )}
 
-      {notificationOpen && (
-        <div className="top-popover notification-popover">
-          <strong>Notifications</strong>
-          <p>No new notifications.</p>
-          <span>System notifications will appear here.</span>
-        </div>
-      )}
+      {/* DASHBOARD SLIDE-UP PANEL */}
 
-      <main className="dashboard-content">
-        <div className="page-heading">
-          <div>
-            <div className="breadcrumb">
-              <span className="breadcrumb-dot" />
-              MARINEGUARD WORKSPACE
-              <span className="breadcrumb-divider">/</span>
-              <span>{activeNav.toUpperCase()}</span>
-            </div>
-            <h1>{pageTitle}</h1>
-            <p>Satellite-based marine oil spill and vessel analysis</p>
-          </div>
+      <div
+        className={`dashboard-sheet ${
+          dashboardOpen ? 'sheet-visible' : ''
+        }`}
+      >
 
-          <div className="heading-actions">
-            <div className="date-display">
-              <CalendarDays size={15} />
-              <span>Image-based analysis</span>
-            </div>
-            <button className="primary-button" onClick={handleExport}>
-              <Download size={16} />
-              Export Brief
-            </button>
-          </div>
-        </div>
+        <div className="sheet-handle-area">
 
-        <div className="metrics-grid">
-          {metrics.map((item) => (
-            <MetricCard key={item.label} item={item} />
-          ))}
-        </div>
-
-        <div className="main-grid">
-          <SatelliteWorkspace
-            image={image}
-            onUpload={(file) => {
-              handleUpload(file)
-            }}
-          />
-
-          <div className="right-column">
-            <IncidentPanel />
-            <VesselPanel />
-          </div>
-        </div>
-
-        <div className="upload-strip">
-          <div className="upload-strip-icon"><Upload size={19} /></div>
-          <div className="upload-strip-copy">
-            <strong>{imageName || 'Upload a satellite image for analysis'}</strong>
-            <span>
-              {imageName
-                ? 'Image preview loaded. Model processing is not connected yet.'
-                : 'Supported formats: JPG, JPEG, PNG, TIFF'}
-            </span>
-          </div>
-          <input
-            ref={uploadRef}
-            type="file"
-            accept="image/*,.tif,.tiff"
-            hidden
-            onChange={(event) => handleUpload(event.target.files?.[0])}
-          />
           <button
-            className="secondary-button"
-            onClick={() => uploadRef.current?.click()}
+            className="sheet-handle"
+            onClick={closeDashboard}
+            aria-label="Return to ocean view"
           >
-            <Upload size={15} />
-            {imageName ? 'Replace Image' : 'Choose Image'}
+            <ChevronDown size={20} />
           </button>
-          {imageName && (
-            <button
-              className="icon-button"
-              title="Remove image"
-              onClick={() => {
-                if (image) URL.revokeObjectURL(image)
-                setImage(null)
-                setImageName('')
-              }}
-            >
-              <X size={17} />
-            </button>
-          )}
+
+          <span>MARINE MONITORING WORKSPACE</span>
+
+          <button
+            className="sheet-close"
+            onClick={closeDashboard}
+            aria-label="Close dashboard"
+          >
+            <X size={19} />
+          </button>
+
         </div>
 
-        <div className="bottom-grid">
-          <SpillChart />
-          <ModelConfidence />
-          <RiskPanel />
+        <div className="dashboard-layout">
+
+          <Sidebar
+            active={active}
+            onSelect={setActive}
+            onLogout={onLogout}
+          />
+
+          <div className="dashboard-main">
+
+            <Topbar
+              onMenu={() => setMobileOpen(!mobileOpen)}
+              onLogout={onLogout}
+            />
+
+            {/* MOBILE NAVIGATION */}
+
+            {mobileOpen && (
+              <div className="mobile-navigation">
+
+                {navItems.map(([label, Icon]) => (
+
+                  <button
+                    key={label}
+                    onClick={() => {
+                      setActive(label)
+                      setMobileOpen(false)
+                    }}
+                  >
+                    <Icon size={18} />
+                    {label}
+                  </button>
+
+                ))}
+
+              </div>
+            )}
+
+            <main className="dashboard-content">
+
+              {/* PAGE HEADING */}
+
+              <div className="page-heading">
+
+                <div>
+
+                  <div className="breadcrumb">
+                    COASTAL SPILL MONITORING
+                    <span>/</span>
+                    {active.toUpperCase()}
+                  </div>
+
+                  <h1>
+                    {active === 'Overview'
+                      ? 'Marine Monitoring Overview'
+                      : active}
+                  </h1>
+
+                  <p>
+                    Satellite-based oil spill detection
+                    and vessel surveillance
+                  </p>
+
+                </div>
+
+                <span className="image-monitoring-label">
+                  <Clock3 size={15} />
+                  Image-based monitoring
+                </span>
+
+              </div>
+
+              {/* FOUR LARGE METRIC CARDS */}
+
+              <div className="metrics-grid">
+
+                {metrics.map((item) => (
+                  <MetricCard
+                    key={item.label}
+                    item={item}
+                  />
+                ))}
+
+              </div>
+
+              {/* CENTRAL MODEL AND RIGHT PANELS */}
+
+              <div className="main-grid">
+
+                <OceanModel />
+
+                <div className="right-column">
+
+                  <AlertPanel />
+
+                  <VesselPanel />
+
+                </div>
+
+              </div>
+
+              {/* BOTTOM ANALYTICS PANELS */}
+
+              <div className="bottom-grid">
+
+                <AnalyticsPanel />
+
+                <ActivityPanel />
+
+                <ConservationPanel />
+
+              </div>
+
+              <footer className="dashboard-footer">
+
+                <span>
+                  COASTAL SPILL MONITORING
+                </span>
+
+                <span>
+                  Marine Environmental Surveillance Workspace
+                </span>
+
+              </footer>
+
+            </main>
+
+          </div>
+
         </div>
 
-        <footer className="dashboard-footer">
-          <span>MARINEGUARD · COASTAL INTELLIGENCE PLATFORM</span>
-          <span>Image-based analysis · Model integration pending</span>
-        </footer>
-      </main>
+      </div>
+
     </div>
   )
 }

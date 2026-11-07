@@ -1,0 +1,430 @@
+
+/* =========================================
+   COASTAL SPILL MONITORING
+   LANDING PAGE
+========================================= */
+
+.ocean-landing {
+  width: 100%;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   NAVIGATION BAR
+========================================= */
+
+.ocean-navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  padding: 12px 6%;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: transparent;
+}
+
+.ocean-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  color: #ffffff;
+  text-decoration: none;
+  font-size: clamp(22px, 2vw, 34px);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.ocean-brand img {
+  width: 105px;
+  height: 105px;
+  object-fit: contain;
+  display: block;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.ocean-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+}
+
+.ocean-nav-links a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.ocean-nav-links a:hover {
+  color: #b4e0dc;
+}
+
+.nav-login {
+  padding: 13px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  font-size: 17px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.nav-login:hover {
+  background: #ffffff;
+  color: #193e53;
+}
+
+/* =========================================
+   FULL SCREEN OCEAN BACKGROUND
+========================================= */
+
+.ocean-hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+
+  padding: 140px 6% 100px;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(4, 24, 38, 0.48) 0%,
+      rgba(4, 24, 38, 0.17) 48%,
+      rgba(4, 24, 38, 0.02) 100%
+    ),
+    url('/images/coastal-hero.png');
+
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* =========================================
+   HERO TEXT
+========================================= */
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 780px;
+}
+
+.hero-eyebrow {
+  margin: 0 0 25px;
+  color: #b9e6df;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+
+.hero-content h1 {
+  max-width: 700px;
+  margin: 0;
+
+  color: #ffffff;
+  font-size: clamp(38px, 4vw, 54px);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -1px;
+}
+
+.hero-description {
+  max-width: 680px;
+  margin-top: 22px;
+
+  color: #ffffff;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+/* =========================================
+   BOTTOM INFORMATION
+========================================= */
+
+.hero-bottom {
+  position: absolute;
+  bottom: 30px;
+  left: 6%;
+  right: 6%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+/* =========================================
+   LOGIN POPUP
+========================================= */
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+  background: rgba(3, 17, 26, 0.75);
+  backdrop-filter: blur(5px);
+}
+
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  max-height: 90vh;
+
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 36px;
+
+  border-radius: 8px;
+  background: #ffffff;
+  color: #293e4a;
+
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+
+  border: none;
+  background: transparent;
+  color: #526b78;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.login-logo {
+  display: block;
+  width: 85px;
+  height: 85px;
+  margin: 0 auto 15px;
+
+  object-fit: contain;
+  background: transparent;
+}
+
+.login-card h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 26px;
+}
+
+.login-subtitle {
+  margin: 10px 0 25px;
+  color: #687a82;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-card label {
+  margin-top: 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.login-card input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+
+  border: 1px solid #dce2e3;
+  border-radius: 4px;
+  outline: none;
+
+  color: #293e4a;
+  font-size: 14px;
+}
+
+.login-card input:focus {
+  border-color: #367d7a;
+}
+
+.sign-in-button {
+  margin-top: 15px;
+  padding: 14px;
+
+  border: none;
+  border-radius: 4px;
+  background: #294b61;
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sign-in-button:hover {
+  background: #1d394d;
+}
+
+/* =========================================
+   OFFICER ACCESS REQUEST
+========================================= */
+
+.register-prompt {
+  margin-top: 22px;
+  color: #687a82;
+  text-align: center;
+  font-size: 14px;
+}
+
+.register-prompt button {
+  border: none;
+  background: transparent;
+  color: #367d7a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.registration-notice {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 5px;
+  background: #edf4f5;
+}
+
+.registration-notice h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.registration-notice p {
+  color: #526b78;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.registration-notice button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background: #294b61;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 900px) {
+  .ocean-brand img {
+    width: 75px;
+    height: 75px;
+  }
+
+  .ocean-brand {
+    font-size: 21px;
+  }
+
+  .ocean-nav-links {
+    gap: 18px;
+  }
+
+  .ocean-nav-links a,
+  .nav-login {
+    font-size: 14px;
+  }
+
+  .hero-content h1 {
+    font-size: 44px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ocean-navbar {
+    padding: 12px 5%;
+    align-items: center;
+  }
+
+  .ocean-brand {
+    gap: 7px;
+    font-size: 14px;
+  }
+
+  .ocean-brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .ocean-nav-links {
+    gap: 9px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .ocean-nav-links a {
+    font-size: 10px;
+  }
+
+  .nav-login {
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+
+  .ocean-hero {
+    padding: 145px 7% 110px;
+    background-position: center center;
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+  }
+
+  .hero-content h1 {
+    font-size: 34px;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-description {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .hero-bottom {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .login-card {
+    padding: 28px 22px;
+  }
+}
